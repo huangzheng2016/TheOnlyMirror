@@ -1,0 +1,38 @@
+{
+  "port":8080,
+  "tls": false,
+  "crt":"",
+  "key":"",
+  "sources":{
+    "ubuntu":{
+      "path":"/ubuntu",
+      "mirrors": [
+        "https://archive.ubuntu.com"
+      ]
+    },
+    "debian":{
+      "path":"/debian",
+      "mirrors": [
+        "https://deb.debian.org"
+      ]
+    },
+    "centos":{
+      "path":"/centos",
+      "mirrors": [
+        "http://mirror.centos.org"
+      ]
+    },
+    "dockerhub":{
+      "ua":"docker",
+      "mirrors":[
+        "https://registry-1.docker.io"
+      ]
+    },
+    "pypi":{
+      "ua":"pypi",
+      "mirrors":[
+        "https://pypi.org"
+      ]
+    }
+  }
+}
