@@ -39,12 +39,8 @@
       "ua":"pip",
       "replaces":[
         {
-          "src":"https://",
-          "dst":"<TLS_SCHEME>"
-        },
-        {
-          "src":"files.pythonhosted.org",
-          "dst":"<HOST>"
+          "src":"https://files.pythonhosted.org",
+          "dst":""
         }
       ],
       "prefix":"/simple",
