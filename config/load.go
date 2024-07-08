@@ -16,10 +16,17 @@ type Config struct {
 }
 
 type Source struct {
-	Type    string   `json:"type"`
-	UA      string   `json:"ua"`
-	Path    string   `json:"path"`
-	Mirrors []string `json:"mirrors"`
+	Type     string    `json:"type"`
+	UA       string    `json:"ua"`
+	Path     string    `json:"path"`
+	Prefix   string    `json:"prefix"`
+	Replaces []Replace `json:"replaces"`
+	Mirrors  []string  `json:"mirrors"`
+}
+
+type Replace struct {
+	Src string `json:"src"`
+	Dst string `json:"dst"`
 }
 
 var config Config

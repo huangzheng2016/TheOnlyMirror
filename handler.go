@@ -16,10 +16,7 @@ func endsWithSlash(path string) string {
 }
 
 func inPath(path string, target string) bool {
-	if path == "" {
-		return false
-	}
-	if path == target || strings.HasPrefix(target, endsWithSlash(path)) {
+	if path == "" || path == target || strings.HasPrefix(target, endsWithSlash(path)) {
 		return true
 	}
 	return false
@@ -27,18 +24,19 @@ func inPath(path string, target string) bool {
 
 func inUA(ua string, target string) bool {
 	if ua == "" {
-		return false
+		return true
 	}
 	return strings.HasPrefix(strings.ToLower(target), strings.ToLower(ua))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	//host := r.Host
+	host := r.Host
 	ua := r.UserAgent()
 	path := r.URL.Path
 	sources := config.GetSources()
+	log.Println(host, ua, path)
 	for name, source := range sources {
-		if inPath(source.Path, path) || inUA(source.UA, ua) {
+		if inPath(source.Path, path) && inUA(source.UA, ua) {
 			log.Println("Match source " + name)
 			switch source.Type {
 			default:

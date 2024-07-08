@@ -1,24 +1,24 @@
 {
   "port":8080,
-  "tls": false,
+  "tls":false,
   "crt":"",
   "key":"",
   "sources":{
     "ubuntu":{
       "path":"/ubuntu",
-      "mirrors": [
+      "mirrors":[
         "https://archive.ubuntu.com"
       ]
     },
     "debian":{
       "path":"/debian",
-      "mirrors": [
+      "mirrors":[
         "https://deb.debian.org"
       ]
     },
     "centos":{
       "path":"/centos",
-      "mirrors": [
+      "mirrors":[
         "http://mirror.centos.org"
       ]
     },
@@ -28,8 +28,26 @@
         "https://registry-1.docker.io"
       ]
     },
-    "pypi":{
-      "ua":"pypi",
+    "pypi_package":{
+      "ua":"pip",
+      "path":"/packages",
+      "mirrors":[
+        "https://files.pythonhosted.org"
+      ]
+    },
+    "pypi_web":{
+      "ua":"pip",
+      "replaces":[
+        {
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
+        },
+        {
+          "src":"files.pythonhosted.org",
+          "dst":"<HOST>"
+        }
+      ],
+      "prefix":"/simple",
       "mirrors":[
         "https://pypi.org"
       ]
