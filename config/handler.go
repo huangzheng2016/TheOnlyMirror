@@ -16,6 +16,9 @@ func GetSources() map[string]Source {
 func GetTls() bool {
 	return config.Tls
 }
+func GetTlsRedirect() bool {
+	return config.TlsRedirect
+}
 
 func GetCert() (string, string) {
 	if config.Crt != "" && config.Key != "" {

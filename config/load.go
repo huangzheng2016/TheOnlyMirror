@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Port    int               `json:"port"`
-	Tls     bool              `json:"tls"`
-	Crt     string            `json:"crt"`
-	Key     string            `json:"key"`
-	Sources map[string]Source `json:"sources"`
+	Port        int               `json:"port"`
+	Tls         bool              `json:"tls"`
+	TlsRedirect bool              `json:"tls_redirect"`
+	Crt         string            `json:"crt"`
+	Key         string            `json:"key"`
+	Sources     map[string]Source `json:"sources"`
 }
 
 type Source struct {
@@ -25,8 +26,10 @@ type Source struct {
 }
 
 type Replace struct {
-	Src string `json:"src"`
-	Dst string `json:"dst"`
+	Type   string `json:"type"`
+	Header string `json:"header"`
+	Src    string `json:"src"`
+	Dst    string `json:"dst"`
 }
 
 var config Config

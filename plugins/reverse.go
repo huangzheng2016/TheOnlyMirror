@@ -23,6 +23,9 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 			req.Host = targetUrl.Host
 		}
 		proxy.ModifyResponse = func(resp *http.Response) error {
+			if len(source.Replaces) == 0 {
+				return nil
+			}
 			bodyBytes, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return err
@@ -49,13 +52,21 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 				case "<HOST>":
 					dst = r.Host
 				case "<TLS_SCHEME>":
-					if config.GetTls() == true {
+					if config.GetTlsRedirect() == true {
 						dst = "https://"
 					} else {
 						dst = "http://"
 					}
 				}
-				modifiedBody = strings.Replace(modifiedBody, src, dst, -1)
+				switch replace.Type {
+				case "header":
+					header := resp.Header.Get(replace.Header)
+					header = strings.Replace(header, src, dst, -1)
+					resp.Header.Set(replace.Header, header)
+				default:
+					modifiedBody = strings.Replace(modifiedBody, src, dst, -1)
+				}
+
 			}
 			switch encoding {
 			case "gzip":

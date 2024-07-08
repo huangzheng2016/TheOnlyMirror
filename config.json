@@ -1,6 +1,7 @@
 {
   "port":8080,
-  "tls":false,
+  "tls":true,
+  "tls_redirect":true,
   "crt":"",
   "key":"",
   "sources":{
@@ -22,8 +23,29 @@
         "http://mirror.centos.org"
       ]
     },
-    "dockerhub":{
+    "docker_auth":{
       "ua":"docker",
+      "path":"/token",
+      "mirrors":[
+        "https://auth.docker.io"
+      ]
+    },
+    "docker_registry":{
+      "ua":"docker",
+      "replaces":[
+        {
+          "type":"header",
+          "header": "www-authenticate",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
+        },
+        {
+          "type":"header",
+          "header": "www-authenticate",
+          "src":"auth.docker.io",
+          "dst":"<HOST>"
+        }
+      ],
       "mirrors":[
         "https://registry-1.docker.io"
       ]
