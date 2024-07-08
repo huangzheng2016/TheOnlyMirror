@@ -53,9 +53,11 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 					dst = r.Host
 				case "<TLS_SCHEME>":
 					if config.GetTlsRedirect() == true {
-						dst = "https://"
-					} else {
-						dst = "http://"
+						if config.GetTls() == true {
+							dst = "https://"
+						} else {
+							dst = "http://"
+						}
 					}
 				}
 				switch replace.Type {

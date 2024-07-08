@@ -1,7 +1,7 @@
 {
   "port":8080,
-  "tls":true,
-  "tls_redirect":true,
+  "tls":false,
+  "tls_redirect":false,
   "crt":"",
   "key":"",
   "sources":{
@@ -68,6 +68,12 @@
       "prefix":"/simple",
       "mirrors":[
         "https://pypi.org"
+      ]
+    },
+    "github":{
+      "ua":"git",
+      "mirrors":[
+        "https://github.com"
       ]
     }
   }

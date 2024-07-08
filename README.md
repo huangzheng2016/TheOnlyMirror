@@ -12,8 +12,8 @@
 - [x] Ubuntu/Debian/CentOS
 - [x] Python - Pypi
 - [x] Docker - Dockerhub
+- [x] Github
 - [ ] Node - Npm
-- [ ] Github
 - [ ] ......
 
 
