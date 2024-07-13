@@ -7,30 +7,32 @@
   "sources":{
     "ubuntu":{
       "path":"/ubuntu",
-      "mirrors":[
-        "https://archive.ubuntu.com"
-      ]
+      "mirror":"https://archive.ubuntu.com"
     },
     "debian":{
       "path":"/debian",
-      "mirrors":[
-        "https://deb.debian.org"
-      ]
+      "mirror":"https://deb.debian.org"
     },
     "centos":{
       "path":"/centos",
-      "mirrors":[
-        "http://mirror.centos.org"
-      ]
+      "mirror":"http://mirror.centos.org"
+    },
+    "kali":{
+      "path":"/kali",
+      "mirror":"https://http.kali.org"
+    },
+    "alpine":{
+      "path":"/alpine",
+      "mirror":"https://dl-cdn.alpinelinux.org"
     },
     "docker_auth":{
+      "priority":2,
       "ua":"docker",
       "path":"/token",
-      "mirrors":[
-        "https://auth.docker.io"
-      ]
+      "mirror":"https://auth.docker.io"
     },
     "docker_registry":{
+      "priority":1,
       "ua":"docker",
       "replaces":[
         {
@@ -46,18 +48,16 @@
           "dst":"<HOST>"
         }
       ],
-      "mirrors":[
-        "https://registry-1.docker.io"
-      ]
+      "mirror":"https://registry-1.docker.io"
     },
     "pypi_package":{
+      "priority":2,
       "ua":"pip",
       "path":"/packages",
-      "mirrors":[
-        "https://files.pythonhosted.org"
-      ]
+      "mirror":"https://files.pythonhosted.org"
     },
     "pypi_web":{
+      "priority":1,
       "ua":"pip",
       "replaces":[
         {
@@ -66,15 +66,25 @@
         }
       ],
       "prefix":"/simple",
-      "mirrors":[
-        "https://pypi.org"
-      ]
+      "mirror": "https://pypi.org"
     },
     "github":{
       "ua":"git",
-      "mirrors":[
-        "https://github.com"
-      ]
+      "mirror":"https://github.com"
+    },
+    "npm":{
+      "ua":"npm",
+      "replaces":[
+        {
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
+        },
+        {
+          "src":"registry.npmjs.org",
+          "dst":"<HOST>"
+        }
+      ],
+      "mirror":"https://registry.npmjs.org"
     }
   }
 }

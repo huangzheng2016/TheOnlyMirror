@@ -9,13 +9,14 @@
 
 ## 计划支持
 
-- [x] Ubuntu/Debian/CentOS
+- [x] Ubuntu/Debian/CentOS/Kali/Alpine
 - [x] Python - Pypi
 - [x] Docker - Dockerhub
 - [x] Github
-- [ ] Node - Npm
+- [x] Node - Npm
 - [ ] ......
 
+其他的并不是不支持，而是作为个人玩具，我根本用不上，改改配置文件就可以了，需要添加的可以自行Fork或者Pr
 
 ## 配置文件
 

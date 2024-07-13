@@ -17,12 +17,13 @@ type Config struct {
 }
 
 type Source struct {
+	Priority int       `json:"priority"`
 	Type     string    `json:"type"`
 	UA       string    `json:"ua"`
 	Path     string    `json:"path"`
 	Prefix   string    `json:"prefix"`
 	Replaces []Replace `json:"replaces"`
-	Mirrors  []string  `json:"mirrors"`
+	Mirror   string    `json:"mirror"`
 }
 
 type Replace struct {
@@ -48,5 +49,6 @@ func Load() error {
 	if err != nil {
 		return fmt.Errorf("failed to parse config file: %v", err)
 	}
+	prepareConfig()
 	return nil
 }
