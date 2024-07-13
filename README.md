@@ -14,13 +14,92 @@
 - [x] Docker - Dockerhub
 - [x] Github
 - [x] Node - Npm
+- [x] 指定域名代理 githubusercontent、gist 等
 - [ ] ......
 
-其他的并不是不支持，而是作为个人玩具，我根本用不上，改改配置文件就可以了，需要添加的可以自行Fork或者Pr
+其他源理论上也支持，目前仅作为demo使用，不做过多添加，需要添加的可以自行fork或者pr
+
+## 使用
+
+```shell
+
+# Docker换源
+tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://example.com"]
+}
+EOF
+
+# Linux换源，仅作参考
+sed -i "s/http.kali.org/example.com/g" /etc/apt/sources.list
+
+# Python换源
+pip config set global.index-url https://example.com
+pip install -i https://example.com flask
+
+# Node换源
+npm config set registry https://example.com
+
+# 代理下载github文件
+curl -O https://example.com/github.com/huangzheng2016/TheOnlyMirror/archive/master.zip
+wget https://example.com/raw.githubusercontent.com/huangzheng2016/TheOnlyMirror/main/README.md
+```
 
 ## 配置文件
 
-你暂时不用知道是怎么用的
+```json
+{
+  "port":8080,//代理端口
+  "tls":false,//是否使用TLS
+  "tls_redirect":false,//在不使用TLS的情况下，打开此功能可以解决一些不支持TLS的问题
+  "crt":"",//TLS证书
+  "key":"",
+  "sources":{
+    "ubuntu":{
+      "path":"/ubuntu",//镜像源路径
+      "mirror":"https://archive.ubuntu.com"//镜像源地址
+    },
+    ......
+    "docker_auth":{
+      "priority":2,//优先级，优先级越大越先匹配，默认为0
+      "ua":"docker",//匹配的User-Agent
+      "path":"/token",//匹配的路径
+      //当ua/path两者都存在时，需要同时满足
+      "mirror":"https://auth.docker.io"
+    },
+    "docker_registry":{
+      "priority":1,
+      "ua":"docker",
+      "replaces":[
+        {
+          "type":"header",//替换规则类型，header为替换请求头
+          "header": "www-authenticate",//匹配头
+          "src":"https://",//匹配目标
+          "dst":"<TLS_SCHEME>"//如果tls_redirect为true，则会根据tls开关，替换为https或者http
+        },
+        {
+          "type":"header",
+          "header": "www-authenticate",
+          "src":"auth.docker.io",
+          "dst":"<HOST>"//替换为请求的Host
+        }
+      ],
+      "mirror":"https://registry-1.docker.io"
+    },
+    ......
+    "pypi_web":{
+      ......
+      "prefix":"/simple",//代理时需要加入的前缀
+      ......
+    },
+    ......
+  },
+  "proxy":[
+    "https://github.com",//允许代理下载的域名
+    ......
+  ]
+}
+```
 
 
 ## 其他项目

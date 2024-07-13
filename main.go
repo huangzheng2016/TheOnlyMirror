@@ -12,6 +12,8 @@ func main() {
 		return
 	}
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/{path}", handler)
+
 	if config.GetTls() == true {
 		log.Println("Starting proxy server with tls on :" + config.GetPort())
 		crt, key := config.GetCert()

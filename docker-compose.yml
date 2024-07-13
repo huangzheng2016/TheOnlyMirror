@@ -1,0 +1,11 @@
+version: '3'
+services:
+  the_only_mirror:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 50242:8080
+    volumes:
+      - ./config.json:/app/config.json

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 )
 
@@ -14,6 +15,7 @@ type Config struct {
 	Crt         string            `json:"crt"`
 	Key         string            `json:"key"`
 	Sources     map[string]Source `json:"sources"`
+	Proxy       []string          `json:"proxy"`
 }
 
 type Source struct {
@@ -34,6 +36,8 @@ type Replace struct {
 }
 
 var config Config
+
+var proxyHost []*url.URL
 
 func Load() error {
 	file, err := os.Open("config.json")

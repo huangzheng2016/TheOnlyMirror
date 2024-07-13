@@ -5,6 +5,7 @@ import (
 	"TheOnlyMirror/plugins"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -43,6 +44,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				plugins.HandlerReverse(w, r, source)
 			}
 			return
+		}
+	}
+	path = strings.TrimPrefix(path, "/")
+	path = strings.TrimPrefix(path, "http:/")
+	path = strings.TrimPrefix(path, "https:/")
+	path = strings.TrimPrefix(path, "/")
+
+	proxyHost := config.GetProxyHost()
+	targetUrl, err := url.Parse("https://" + path)
+	if err == nil {
+		for _, proxy := range proxyHost {
+			if proxy.Host == targetUrl.Host {
+				log.Println("Match proxy " + proxy.Host)
+				targetUrl.Scheme = proxy.Scheme
+				plugins.HandlerProxy(w, r, targetUrl)
+				return
+			}
 		}
 	}
 	http.NotFound(w, r)

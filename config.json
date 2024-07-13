@@ -25,6 +25,10 @@
       "path":"/alpine",
       "mirror":"https://dl-cdn.alpinelinux.org"
     },
+    "github":{
+      "ua":"git",
+      "mirror":"https://github.com"
+    },
     "docker_auth":{
       "priority":2,
       "ua":"docker",
@@ -68,10 +72,6 @@
       "prefix":"/simple",
       "mirror": "https://pypi.org"
     },
-    "github":{
-      "ua":"git",
-      "mirror":"https://github.com"
-    },
     "npm":{
       "ua":"npm",
       "replaces":[
@@ -86,5 +86,11 @@
       ],
       "mirror":"https://registry.npmjs.org"
     }
-  }
+  },
+  "proxy":[
+    "https://github.com",
+    "https://raw.githubusercontent.com",
+    "https://gist.githubusercontent.com",
+    "https://gist.github.com"
+  ]
 }

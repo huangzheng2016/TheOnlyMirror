@@ -2,6 +2,7 @@ package config
 
 import (
 	"TheOnlyMirror/cert"
+	"net/url"
 	"strconv"
 )
 
@@ -11,6 +12,13 @@ func GetPort() string {
 
 func GetSources() map[string]Source {
 	return config.Sources
+}
+func GetProxy() []string {
+	return config.Proxy
+}
+
+func GetProxyHost() []*url.URL {
+	return proxyHost
 }
 
 func GetTls() bool {

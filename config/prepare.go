@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net/url"
 	"sort"
 )
 
@@ -28,5 +29,9 @@ func prepareConfig() {
 			}
 		}
 		i++
+	}
+	for _, proxy := range config.Proxy {
+		targetUrl, _ := url.Parse(proxy)
+		proxyHost = append(proxyHost, targetUrl)
 	}
 }
