@@ -10,11 +10,8 @@ func GetPort() string {
 	return strconv.Itoa(config.Port)
 }
 
-func GetSources() map[string]Source {
-	return config.Sources
-}
-func GetProxy() []string {
-	return config.Proxy
+func GetSources() []SourceSlice {
+	return SourceSlices
 }
 
 func GetProxyHost() []*url.URL {

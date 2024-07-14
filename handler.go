@@ -36,12 +36,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	sources := config.GetSources()
 	log.Println(host, ua, path)
-	for name, source := range sources {
-		if inPath(source.Path, path) && inUA(source.UA, ua) {
-			log.Println("Match source " + name)
-			switch source.Type {
+	for _, s := range sources {
+		if inPath(s.Sources.Path, path) && inUA(s.Sources.UA, ua) {
+			log.Println("Match source " + s.Key)
+			switch s.Sources.Type {
 			default:
-				plugins.HandlerReverse(w, r, source)
+				plugins.HandlerReverse(w, r, s.Sources)
 			}
 			return
 		}
