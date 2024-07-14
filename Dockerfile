@@ -1,13 +1,18 @@
-FROM golang:1.20-alpine
+FROM golang:alpine as build
 
 WORKDIR /app
 
 COPY . .
 
-RUN go env -w GOPROXY=https://goproxy.cn,direct
+RUN go build -v -trimpath -o one-mirror ./
 
-RUN go mod download
+FROM alpine:latest as prod
 
-RUN go build -o app
+WORKDIR /app
 
-CMD ["./app"]
+COPY --from=build /app/one-mirror /app/one-mirror
+COPY --from=build /app/config.json /app/config.json
+EXPOSE 8080
+
+ENTRYPOINT [ "/app/one-mirror" ]
+CMD        ["/app/config.json" ]
