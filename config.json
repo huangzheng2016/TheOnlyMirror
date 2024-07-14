@@ -1,7 +1,7 @@
 {
   "port":8080,
   "tls":false,
-  "tls_redirect":true,
+  "tls_redirect":false,
   "crt":"",
   "key":"",
   "sources":{
