@@ -7,7 +7,7 @@
   "sources":{
     "ubuntu":{
       "path":"/ubuntu",
-      "mirror":"https://archive.ubuntu.com"
+      "mirror":"http://archive.ubuntu.com"
     },
     "debian":{
       "path":"/debian",
