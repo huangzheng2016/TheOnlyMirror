@@ -29,6 +29,12 @@
       "ua":"git",
       "mirror":"https://github.com"
     },
+    "docker_production": {
+      "priority": 3,
+      "ua": "docker",
+      "path": "/registry-v2",
+      "mirror":"https://production.cloudflare.docker.com"
+    },
     "docker_auth":{
       "priority":2,
       "ua":"docker",
@@ -50,9 +56,27 @@
           "header": "www-authenticate",
           "src":"auth.docker.io",
           "dst":"<HOST>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "https://",
+          "dst": "<TLS_SCHEME>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "production.cloudflare.docker.com",
+          "dst": "<HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
+    },
+    "buildkit_production": {
+      "priority": 3,
+      "ua": "buildkit",
+      "path": "/registry-v2",
+      "mirror":"https://production.cloudflare.docker.com"
     },
     "buildkit_auth":{
       "priority":2,
@@ -74,6 +98,18 @@
           "type": "header",
           "header": "www-authenticate",
           "src": "auth.docker.io",
+          "dst": "<HOST>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "https://",
+          "dst": "<TLS_SCHEME>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "production.cloudflare.docker.com",
           "dst": "<HOST>"
         }
       ],
