@@ -22,7 +22,7 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 	proxy.Director = func(req *http.Request) {
 		req.URL.Scheme = targetUrl.Scheme
 		req.URL.Host = targetUrl.Host
-		req.URL.Path = source.Prefix + strings.TrimPrefix(source.Prefix, req.URL.Path)
+		req.URL.Path = source.Prefix + strings.TrimPrefix(req.URL.Path, source.Prefix)
 		req.Host = targetUrl.Host
 	}
 	proxy.ModifyResponse = func(resp *http.Response) error {
