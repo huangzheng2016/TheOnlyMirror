@@ -57,6 +57,8 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 					} else {
 						dst = "http://"
 					}
+				} else {
+					continue
 				}
 			}
 			switch replace.Type {

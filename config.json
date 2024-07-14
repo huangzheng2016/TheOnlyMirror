@@ -1,7 +1,7 @@
 {
   "port":8080,
   "tls":false,
-  "tls_redirect":false,
+  "tls_redirect":true,
   "crt":"",
   "key":"",
   "sources":{
@@ -50,6 +50,31 @@
           "header": "www-authenticate",
           "src":"auth.docker.io",
           "dst":"<HOST>"
+        }
+      ],
+      "mirror":"https://registry-1.docker.io"
+    },
+    "buildkit_auth":{
+      "priority":2,
+      "ua":"containerd",
+      "path":"/token",
+      "mirror":"https://auth.docker.io"
+    },
+    "buildkit_registry": {
+      "priority": 1,
+      "ua": "buildkit",
+      "replaces": [
+        {
+          "type": "header",
+          "header": "www-authenticate",
+          "src": "https://",
+          "dst": "<TLS_SCHEME>"
+        },
+        {
+          "type": "header",
+          "header": "www-authenticate",
+          "src": "auth.docker.io",
+          "dst": "<HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
