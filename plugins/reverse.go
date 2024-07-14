@@ -4,6 +4,7 @@ import (
 	"TheOnlyMirror/config"
 	"bytes"
 	"compress/gzip"
+	"golang.org/x/net/http2"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +16,9 @@ import (
 func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source) {
 	targetUrl, _ := url.Parse(source.Mirror)
 	proxy := httputil.NewSingleHostReverseProxy(targetUrl)
+	if r.ProtoMajor == 2 {
+		proxy.Transport = &http2.Transport{}
+	}
 	proxy.Director = func(req *http.Request) {
 		req.URL.Scheme = targetUrl.Scheme
 		req.URL.Host = targetUrl.Host
