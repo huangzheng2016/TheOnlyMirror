@@ -8,6 +8,13 @@
 
 如果采用Docker+Nginx反代方式部署，请务必打开HTTP/2支持
 
+## 快速部署
+
+感谢@jimyag的PR
+```shell
+docker run -d --restart=unless-stopped -p 8080:8080 ghcr.io/huangzheng2016/the-only-mirror
+```
+
 ## 计划支持
 
 - [x] Ubuntu/Debian/CentOS/Kali/Alpine
