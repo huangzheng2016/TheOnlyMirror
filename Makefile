@@ -1,3 +1,2 @@
-
 build:
-	go build -v -trimpath -o one-mirror ./
+	go build -v -trimpath -o the-only-mirror ./

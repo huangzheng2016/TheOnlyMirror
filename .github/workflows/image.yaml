@@ -56,7 +56,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/huangzheng2016/one-mirror
+          images: ghcr.io/huangzheng2016/the-only-mirror
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
@@ -66,6 +66,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/huangzheng2016/one-mirror:${{ steps.ref.outputs.latest }}
-            ghcr.io/huangzheng2016/one-mirror:${{ steps.ref.outputs.ref }}
+            ghcr.io/huangzheng2016/the-only-mirror:${{ steps.ref.outputs.latest }}
+            ghcr.io/huangzheng2016/the-only-mirror:${{ steps.ref.outputs.ref }}
           labels: ${{ steps.meta.outputs.labels }}
