@@ -15,6 +15,7 @@
 - [x] Docker - Dockerhub
 - [x] Github
 - [x] Node - Npm
+- [x] Golang - Goproxy
 - [x] 指定域名代理 githubusercontent、gist 等
 - [ ] ......
 

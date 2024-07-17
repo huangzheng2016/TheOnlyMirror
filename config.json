@@ -146,6 +146,10 @@
         }
       ],
       "mirror":"https://registry.npmjs.org"
+    },
+    "go":{
+      "ua":"Go-http-client",
+      "mirror":"https://proxy.golang.org"
     }
   },
   "proxy":[
