@@ -31,25 +31,28 @@ docker run -d --restart=unless-stopped -p 8080:8080 ghcr.io/huangzheng2016/the-o
 ## 使用
 
 ```shell
-
-# Docker换源
+# Docker 换源
 tee /etc/docker/daemon.json <<-'EOF'
 {
   "registry-mirrors": ["https://example.com"]
 }
 EOF
 
-# Linux换源，仅作参考
+# Linux 换源，仅作参考
 sed -i "s/http.kali.org/example.com/g" /etc/apt/sources.list
 
-# Python换源
+# Python 换源
 pip config set global.index-url https://example.com
-pip install -i https://example.com flask
+pip install -i https://example.com -r requirements.txt
 
-# Node换源
+# Golang 换源
+$ export GO111MODULE=on
+$ export GOPROXY=https://example.com
+
+# Node 换源
 npm config set registry https://example.com
 
-# 代理下载github文件
+# 代理下载 github 文件
 curl -O https://example.com/github.com/huangzheng2016/TheOnlyMirror/archive/master.zip
 wget https://example.com/raw.githubusercontent.com/huangzheng2016/TheOnlyMirror/main/README.md
 ```
