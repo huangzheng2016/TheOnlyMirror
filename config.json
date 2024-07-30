@@ -29,6 +29,22 @@
       "ua":"git",
       "mirror":"https://github.com"
     },
+    "golang":{
+      "path":"/go",
+      "mirror":"https://dl.google.com"
+    },
+    "docker-dl-linux":{
+      "path":"/linux",
+      "mirror":"https://download.docker.com"
+    },
+    "docker-dl-mac":{
+      "path":"/mac",
+      "mirror":"https://download.docker.com"
+    },
+    "docker-dl-win":{
+      "path":"/win",
+      "mirror":"https://download.docker.com"
+    },
     "docker_production": {
       "priority": 3,
       "ua": "docker",
