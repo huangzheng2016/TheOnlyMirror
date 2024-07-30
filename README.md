@@ -23,6 +23,7 @@ docker run -d --restart=unless-stopped -p 8080:8080 ghcr.io/huangzheng2016/the-o
 - [x] Github
 - [x] Node - Npm
 - [x] Golang - Goproxy
+- [x] Golang/Docker - download
 - [x] 指定域名代理 githubusercontent、gist 等
 - [ ] ......
 
