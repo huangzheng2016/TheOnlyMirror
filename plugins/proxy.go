@@ -1,10 +1,12 @@
 package plugins
 
 import (
+	"TheOnlyMirror/config"
 	"golang.org/x/net/http2"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 )
 
 func HandlerProxy(w http.ResponseWriter, r *http.Request, targetUrl *url.URL) {
@@ -17,6 +19,17 @@ func HandlerProxy(w http.ResponseWriter, r *http.Request, targetUrl *url.URL) {
 		req.URL.Host = targetUrl.Host
 		req.URL.Path = targetUrl.Path
 		req.Host = targetUrl.Host
+	}
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		proxyHost := config.GetProxyHost()
+		location := resp.Header.Get("location")
+		for _, proxy := range proxyHost {
+			if strings.Contains(location, proxy.Host) {
+				location = strings.Replace(location, proxy.Host, r.Host+"/"+proxy.Host, -1)
+			}
+		}
+		resp.Header.Set("location", location)
+		return nil
 	}
 	proxy.ServeHTTP(w, r)
 }

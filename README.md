@@ -53,7 +53,7 @@ $ export GOPROXY=https://example.com
 # Node 换源
 npm config set registry https://example.com
 
-# 代理下载 github 文件 （TODO：302跳转未处理）
+# 代理下载 github 文件 （TODO：302跳转已处理，非HTTPS情况未处理）
 curl -O https://example.com/github.com/huangzheng2016/TheOnlyMirror/archive/master.zip
 wget https://example.com/raw.githubusercontent.com/huangzheng2016/TheOnlyMirror/main/README.md
 ```
