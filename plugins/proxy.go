@@ -26,6 +26,7 @@ func HandlerProxy(w http.ResponseWriter, r *http.Request, targetUrl *url.URL) {
 		for _, proxy := range proxyHost {
 			if strings.Contains(location, proxy.Host) {
 				location = strings.Replace(location, proxy.Host, r.Host+"/"+proxy.Host, -1)
+				break
 			}
 		}
 		resp.Header.Set("location", location)
