@@ -25,6 +25,10 @@
       "path":"/pub/epel",
       "mirror":"https://dl.fedoraproject.org"
     },
+    "jdoss":{
+      "path":"/results/jdoss",
+      "mirror":"https://download.copr.fedorainfracloud.org"
+    },
     "kali":{
       "path":"/kali",
       "mirror":"https://http.kali.org"
