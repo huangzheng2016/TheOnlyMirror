@@ -17,6 +17,14 @@
       "path":"/centos",
       "mirror":"http://mirror.centos.org"
     },
+    "epel-archieve":{
+      "path":"/pub/archive",
+      "mirror":"https://archives.fedoraproject.org"
+    },
+    "epel":{
+      "path":"/pub/epel",
+      "mirror":"https://dl.fedoraproject.org"
+    },
     "kali":{
       "path":"/kali",
       "mirror":"https://http.kali.org"
