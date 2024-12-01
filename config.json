@@ -5,6 +5,14 @@
   "crt":"",
   "key":"",
   "sources":{
+    "copr":{                                            
+      "path":"/results",                               
+      "mirror":"https://download.copr.fedorainfracloud.org"    
+    },
+    "chrome-linux":{
+      "path":"/linue/chrome",
+      "mirror":"https://dl.google.com"
+    },    
     "ubuntu":{
       "path":"/ubuntu",
       "mirror":"http://archive.ubuntu.com"
@@ -186,6 +194,7 @@
     "https://gist.github.com",
     "https://objects.githubusercontent.com",
     "https://codeload.github.com",
-    "https://github.com"
+    "https://github.com",
+    "https://copr.fedorainfracloud.org"
   ]
 }
