@@ -197,5 +197,7 @@
     "https://github.com",
     "https://copr.fedorainfracloud.org",
     "https://cdn.jsdelivr.net"
+    "https://archive.debian.org",
+    "https://downloads.openwrt.org"
   ]
 }
