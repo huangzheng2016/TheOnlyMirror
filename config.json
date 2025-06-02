@@ -108,7 +108,7 @@
       ],
       "mirror":"https://registry-1.docker.io"
     },
-    "buildkit_production": {
+     "buildkit_production": {
       "priority": 3,
       "ua": "buildkit",
       "path": "/registry-v2",
@@ -116,13 +116,56 @@
     },
     "buildkit_auth":{
       "priority":2,
-      "ua":"containerd",
+      "ua":"buildkit",
       "path":"/token",
       "mirror":"https://auth.docker.io"
     },
     "buildkit_registry": {
       "priority": 1,
       "ua": "buildkit",
+      "replaces": [
+        {
+          "type": "header",
+          "header": "www-authenticate",
+          "src": "https://",
+          "dst": "<TLS_SCHEME>"
+        },
+        {
+          "type": "header",
+          "header": "www-authenticate",
+          "src": "auth.docker.io",
+          "dst": "<HOST>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "https://",
+          "dst": "<TLS_SCHEME>"
+        },
+        {
+          "type": "header",
+          "header": "location",
+          "src": "production.cloudflare.docker.com",
+          "dst": "<HOST>"
+        }
+      ],
+      "mirror":"https://registry-1.docker.io"
+    },
+    "containerd_production": {
+      "priority": 3,
+      "ua": "containerd",
+      "path": "/registry-v2",
+      "mirror":"https://production.cloudflare.docker.com"
+    },
+    "containerd_auth":{
+      "priority":2,
+      "ua":"containerd",
+      "path":"/token",
+      "mirror":"https://auth.docker.io"
+    },
+    "containerd_registry": {
+      "priority": 1,
+      "ua": "containerd",
       "replaces": [
         {
           "type": "header",
