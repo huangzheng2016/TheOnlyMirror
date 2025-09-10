@@ -5,14 +5,14 @@
   "crt":"",
   "key":"",
   "sources":{
-    "copr":{                                            
-      "path":"/results",                               
-      "mirror":"https://download.copr.fedorainfracloud.org"    
+    "copr":{
+      "path":"/results",
+      "mirror":"https://download.copr.fedorainfracloud.org"
     },
     "chrome-linux":{
       "path":"/linue/chrome",
       "mirror":"https://dl.google.com"
-    },    
+    },
     "ubuntu":{
       "path":"/ubuntu",
       "mirror":"http://archive.ubuntu.com"
@@ -65,10 +65,10 @@
       "path":"/win",
       "mirror":"https://download.docker.com"
     },
-    "docker_production": {
-      "priority": 3,
-      "ua": "docker",
-      "path": "/registry-v2",
+    "docker_production":{
+      "priority":3,
+      "ua":"docker",
+      "path":"/registry-v2",
       "mirror":"https://production.cloudflare.docker.com"
     },
     "docker_auth":{
@@ -83,35 +83,35 @@
       "replaces":[
         {
           "type":"header",
-          "header": "www-authenticate",
+          "header":"www-authenticate",
           "src":"https://",
           "dst":"<TLS_SCHEME>"
         },
         {
           "type":"header",
-          "header": "www-authenticate",
+          "header":"www-authenticate",
           "src":"auth.docker.io",
           "dst":"<HOST>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "https://",
-          "dst": "<TLS_SCHEME>"
+          "type":"header",
+          "header":"location",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "production.cloudflare.docker.com",
-          "dst": "<HOST>"
+          "type":"header",
+          "header":"location",
+          "src":"production.cloudflare.docker.com",
+          "dst":"<HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
     },
-     "buildkit_production": {
-      "priority": 3,
-      "ua": "buildkit",
-      "path": "/registry-v2",
+    "buildkit_production":{
+      "priority":3,
+      "ua":"buildkit",
+      "path":"/registry-v2",
       "mirror":"https://production.cloudflare.docker.com"
     },
     "buildkit_auth":{
@@ -120,84 +120,41 @@
       "path":"/token",
       "mirror":"https://auth.docker.io"
     },
-    "buildkit_registry": {
-      "priority": 1,
-      "ua": "buildkit",
-      "replaces": [
+    "buildkit_registry":{
+      "priority":1,
+      "ua":"buildkit",
+      "replaces":[
         {
-          "type": "header",
-          "header": "www-authenticate",
-          "src": "https://",
-          "dst": "<TLS_SCHEME>"
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
         },
         {
-          "type": "header",
-          "header": "www-authenticate",
-          "src": "auth.docker.io",
-          "dst": "<HOST>"
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"auth.docker.io",
+          "dst":"<HOST>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "https://",
-          "dst": "<TLS_SCHEME>"
+          "type":"header",
+          "header":"location",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "production.cloudflare.docker.com",
-          "dst": "<HOST>"
+          "type":"header",
+          "header":"location",
+          "src":"production.cloudflare.docker.com",
+          "dst":"<HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
     },
-    "containers_production": {                           
-      "priority": 3,                                     
-      "ua": "containers",                                  
-      "path": "/registry-v2",                            
-      "mirror":"https://production.cloudflare.docker.com"
-    },                                                     
-    "containers_auth":{                                  
-      "priority":2,                                      
-      "ua":"containers",                                   
-      "path":"/token",                                   
-      "mirror":"https://auth.docker.io"                  
-    },                                                   
-    "containers_registry": {                               
-      "priority": 1,                                     
-      "ua": "containers",                                
-      "replaces": [                                      
-        {                                                  
-          "type": "header",                              
-          "header": "www-authenticate",                  
-          "src": "https://",                             
-          "dst": "<TLS_SCHEME>"                          
-        },                                                 
-        {                                                
-          "type": "header",                              
-          "header": "www-authenticate",                  
-          "src": "auth.docker.io",                       
-          "dst": "<HOST>"                                  
-        },                                               
-        {                                                
-          "type": "header",                              
-          "header": "location",                            
-          "src": "https://",                             
-          "dst": "<TLS_SCHEME>"                          
-        },                                               
-        {                                                
-          "type": "header",                              
-          "header": "location",                          
-          "src": "production.cloudflare.docker.com",     
-          "dst": "<HOST>"                                
-        }                                                
-      ],                                                 
-      "mirror":"https://registry-1.docker.io"            
-    },  
-    "containerd_production": {
-      "priority": 3,
-      "ua": "containerd",
-      "path": "/registry-v2",
+    "containerd_production":{
+      "priority":3,
+      "ua":"containerd",
+      "path":"/registry-v2",
       "mirror":"https://production.cloudflare.docker.com"
     },
     "containerd_auth":{
@@ -206,33 +163,76 @@
       "path":"/token",
       "mirror":"https://auth.docker.io"
     },
-    "containerd_registry": {
-      "priority": 1,
-      "ua": "containerd",
-      "replaces": [
+    "containerd_registry":{
+      "priority":1,
+      "ua":"containerd",
+      "replaces":[
         {
-          "type": "header",
-          "header": "www-authenticate",
-          "src": "https://",
-          "dst": "<TLS_SCHEME>"
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
         },
         {
-          "type": "header",
-          "header": "www-authenticate",
-          "src": "auth.docker.io",
-          "dst": "<HOST>"
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"auth.docker.io",
+          "dst":"<HOST>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "https://",
-          "dst": "<TLS_SCHEME>"
+          "type":"header",
+          "header":"location",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
         },
         {
-          "type": "header",
-          "header": "location",
-          "src": "production.cloudflare.docker.com",
-          "dst": "<HOST>"
+          "type":"header",
+          "header":"location",
+          "src":"production.cloudflare.docker.com",
+          "dst":"<HOST>"
+        }
+      ],
+      "mirror":"https://registry-1.docker.io"
+    },
+    "containers_production":{
+      "priority":3,
+      "ua":"containers",
+      "path":"/registry-v2",
+      "mirror":"https://production.cloudflare.docker.com"
+    },
+    "containers_auth":{
+      "priority":2,
+      "ua":"containers",
+      "path":"/token",
+      "mirror":"https://auth.docker.io"
+    },
+    "containers_registry":{
+      "priority":1,
+      "ua":"containers",
+      "replaces":[
+        {
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
+        },
+        {
+          "type":"header",
+          "header":"www-authenticate",
+          "src":"auth.docker.io",
+          "dst":"<HOST>"
+        },
+        {
+          "type":"header",
+          "header":"location",
+          "src":"https://",
+          "dst":"<TLS_SCHEME>"
+        },
+        {
+          "type":"header",
+          "header":"location",
+          "src":"production.cloudflare.docker.com",
+          "dst":"<HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
@@ -253,7 +253,7 @@
         }
       ],
       "prefix":"/simple",
-      "mirror": "https://pypi.org"
+      "mirror":"https://pypi.org"
     },
     "npm":{
       "ua":"npm",
@@ -284,6 +284,7 @@
     "https://copr.fedorainfracloud.org",
     "https://cdn.jsdelivr.net",
     "https://archive.debian.org",
-    "https://downloads.openwrt.org"
+    "https://downloads.openwrt.org",
+    "https://mainnet.infura.io"
   ]
 }
