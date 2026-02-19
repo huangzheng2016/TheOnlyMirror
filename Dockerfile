@@ -1,8 +1,18 @@
-FROM golang:alpine as build
+FROM node:20-alpine as webbuild
+
+WORKDIR /app/frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend ./
+RUN npm run build
+
+FROM golang:1.22-alpine as build
 
 WORKDIR /app
 
 COPY . .
+COPY --from=webbuild /app/frontend/dist /app/frontend/dist
 
 RUN go build -v -trimpath -o the-only-mirror  ./
 
