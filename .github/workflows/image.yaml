@@ -3,69 +3,74 @@ name: Create and publish a Docker image
 on:
   push:
     tags:
-      - v*
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build, for example v1.0.1"
+        required: true
+        type: string
 
-# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
   REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/huangzheng2016/the-only-mirror
 
-# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
       packages: write
-      attestations: write
-      id-token: write
-      # 
     steps:
-      - name: Get commit to build
-        id: ref
-        run: |-
-          if [[ -z "${{ github.event.inputs.tag }}" ]]; then
-            ref="${{ github.ref_name }}"
-          else
-            ref="${{ github.event.inputs.tag }}"
+      - name: Resolve image tags
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -z "${{ github.event.inputs.tag }}" ]; then
+            echo "workflow_dispatch requires a tag input" >&2
+            exit 1
           fi
-          echo "ref=$ref"
-          echo "ref=$ref" >> $GITHUB_OUTPUT
-          if [[ $ref == *"-"* ]]; then
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            ref="${{ github.event.inputs.tag }}"
+          else
+            ref="${{ github.ref_name }}"
+          fi
+          if [[ "$ref" == *"-"* ]]; then
             latest=latest-beta
           else
             latest=latest
           fi
-          echo "latest=$latest"
-          echo "latest=$latest" >> $GITHUB_OUTPUT
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          echo "version_label=org.opencontainers.image.version=$ref" >> "$GITHUB_OUTPUT"
+          echo "revision_label=org.opencontainers.image.revision=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "source_label=org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.ref.outputs.ref }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+          ref: ${{ steps.meta.outputs.ref }}
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login "${{ env.REGISTRY }}" -u "${{ github.actor }}" --password-stdin
+
+      - name: Enable QEMU emulation
+        run: docker run --privileged --rm tonistiigi/binfmt --install all
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/huangzheng2016/the-only-mirror
+        run: |
+          docker buildx inspect ci-builder >/dev/null 2>&1 || docker buildx create --name ci-builder --use
+          docker buildx use ci-builder
+          docker buildx inspect --bootstrap
+
       - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          target: prod
-          context: .
-          push: true
-          tags: |
-            ghcr.io/huangzheng2016/the-only-mirror:${{ steps.ref.outputs.latest }}
-            ghcr.io/huangzheng2016/the-only-mirror:${{ steps.ref.outputs.ref }}
-          labels: ${{ steps.meta.outputs.labels }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --target prod \
+            --push \
+            --tag "${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.ref }}" \
+            --tag "${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.latest }}" \
+            --label "${{ steps.meta.outputs.version_label }}" \
+            --label "${{ steps.meta.outputs.revision_label }}" \
+            --label "${{ steps.meta.outputs.source_label }}" \
+            .
