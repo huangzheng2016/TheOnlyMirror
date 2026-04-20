@@ -7,7 +7,7 @@ RUN npm ci
 COPY frontend ./
 RUN npm run build
 
-FROM golang:1.22-alpine as build
+FROM golang:1.26-alpine as build
 
 WORKDIR /app
 
