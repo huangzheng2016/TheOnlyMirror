@@ -140,7 +140,9 @@ wget ${base}/raw.githubusercontent.com/owner/repo/main/README.md`
 {
   "registry-mirrors": ["${base}"]
 }
-EOF`
+EOF
+systemctl daemon-reload
+systemctl restart docker`
   }
 })
 
