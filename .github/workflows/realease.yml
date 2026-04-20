@@ -53,19 +53,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.target_tag }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
@@ -91,7 +91,7 @@ jobs:
           tar -czf "dist/${ASSET_NAME}.tar.gz" the-only-mirror
 
       - name: Upload archive artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/*.tar.gz
@@ -108,7 +108,7 @@ jobs:
 
     steps:
       - name: Download archives
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: release-*
@@ -118,6 +118,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release view "${{ needs.prepare.outputs.target_tag }}" >/dev/null 2>&1 || \
-            gh release create "${{ needs.prepare.outputs.target_tag }}" --title "${{ needs.prepare.outputs.target_tag }}" --notes ""
-          gh release upload "${{ needs.prepare.outputs.target_tag }}" dist/*.tar.gz --clobber
+          gh release view "${{ needs.prepare.outputs.target_tag }}" --repo "${{ github.repository }}" >/dev/null 2>&1 || \
+            gh release create "${{ needs.prepare.outputs.target_tag }}" --repo "${{ github.repository }}" --title "${{ needs.prepare.outputs.target_tag }}" --notes ""
+          gh release upload "${{ needs.prepare.outputs.target_tag }}" dist/*.tar.gz --repo "${{ github.repository }}" --clobber
