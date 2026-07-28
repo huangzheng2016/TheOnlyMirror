@@ -1,4 +1,4 @@
-FROM node:25-alpine as webbuild
+FROM node:26-alpine as webbuild
 
 WORKDIR /app/frontend
 
