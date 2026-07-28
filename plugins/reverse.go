@@ -28,7 +28,7 @@ func resolveReplaceTarget(value string, r *http.Request) (string, bool) {
 		}
 		return "http://", true
 	default:
-		return value, true
+		return strings.ReplaceAll(value, "<HOST>", r.Host), true
 	}
 }
 

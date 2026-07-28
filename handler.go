@@ -29,7 +29,7 @@ func inUA(ua string, target string) bool {
 }
 
 func parseProxyTarget(r *http.Request) (*url.URL, error) {
-	target := strings.TrimPrefix(r.URL.Path, "/")
+	target := strings.TrimPrefix(r.URL.EscapedPath(), "/")
 	if target == "" {
 		return nil, fmt.Errorf("empty proxy target")
 	}
@@ -93,6 +93,13 @@ func matchHostAlias(r *http.Request) (*url.URL, string, bool) {
 }
 
 func matchSource(path string, ua string) (*config.Source, string, bool) {
+	for _, proxy := range config.GetProxyHost() {
+		proxyPath := "/" + proxy.Host
+		if path == proxyPath || strings.HasPrefix(path, proxyPath+"/") {
+			return nil, "", false
+		}
+	}
+
 	sources := config.GetSources()
 	for _, s := range sources {
 		if inPath(s.Sources.Path, path) && inUA(s.Sources.UA, ua) {

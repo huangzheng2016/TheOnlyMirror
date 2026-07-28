@@ -72,7 +72,13 @@
           "type":"header",
           "header":"location",
           "src":"production.cloudflare.docker.com",
-          "dst":"<HOST>"
+          "dst":"<HOST>/production.cloudflare.docker.com"
+        },
+        {
+          "type":"header",
+          "header":"location",
+          "src":"production.cloudfront.docker.com",
+          "dst":"<HOST>/production.cloudfront.docker.com"
         }
       ],
       "mirror":"https://registry-1.docker.io"
@@ -177,6 +183,8 @@
     }
   },
   "proxy":[
+    "https://production.cloudflare.docker.com",
+    "https://production.cloudfront.docker.com",
     "https://ghcr.io",
     "https://registry.k8s.io",
     "https://k8s.gcr.io",
