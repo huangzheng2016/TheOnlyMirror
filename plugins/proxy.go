@@ -41,13 +41,6 @@ func isRedirectStatus(code int) bool {
 	}
 }
 
-func requestScheme(r *http.Request) string {
-	if r.TLS != nil {
-		return "https"
-	}
-	return "http"
-}
-
 func isProxyUpstreamHost(host string) bool {
 	for _, upstream := range config.GetProxyHost() {
 		if config.NormalizeHost(upstream.Host) == host {
@@ -85,9 +78,14 @@ func rewriteLocation(location string, r *http.Request, targetURL *url.URL, alias
 	}
 
 	if aliasRequestHost != "" {
-		redirectHost := aliasRequestHost
+		// Build the redirect from the original request host so a non-default
+		// port survives (aliasRequestHost is normalized and port-less).
+		redirectHost := r.Host
+		if redirectHost == "" {
+			redirectHost = aliasRequestHost
+		}
 		if alias, ok := config.GetAliasByUpstream(upstreamHost); ok {
-			redirectHost = aliasHostFromRequestHost(aliasRequestHost, alias)
+			redirectHost = aliasHostFromRequestHost(redirectHost, alias)
 		}
 		redirectURL := &url.URL{
 			Scheme:   requestScheme(r),

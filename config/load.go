@@ -22,15 +22,17 @@ type Config struct {
 }
 
 type Source struct {
-	Template bool      `json:"template"`
-	BaseName string    `json:"base_name"`
-	Targets  []string  `json:"targets"`
-	Priority int       `json:"priority"`
-	UA       string    `json:"ua"`
-	Path     string    `json:"path"`
-	Prefix   string    `json:"prefix"`
-	Replaces []Replace `json:"replaces"`
-	Mirror   string    `json:"mirror"`
+	Template            bool      `json:"template"`
+	BaseName            string    `json:"base_name"`
+	Targets             []string  `json:"targets"`
+	Priority            int       `json:"priority"`
+	UA                  string    `json:"ua"`
+	Path                string    `json:"path"`
+	Prefix              string    `json:"prefix"`
+	StripPath           bool      `json:"strip_path"`
+	RewriteContentTypes []string  `json:"rewrite_content_types"`
+	Replaces            []Replace `json:"replaces"`
+	Mirror              string    `json:"mirror"`
 }
 
 type Replace struct {
@@ -118,6 +120,9 @@ func Load() error {
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %v", err)
 	}
+	// Reset before unmarshalling so repeated Load calls stay idempotent
+	// (json.Unmarshal merges maps into the existing value otherwise).
+	config = Config{}
 	err = json.Unmarshal(bytes, &config)
 	if err != nil {
 		return fmt.Errorf("failed to parse config file: %v", err)
