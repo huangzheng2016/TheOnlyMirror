@@ -129,9 +129,13 @@ func readBodyLimited(resp *http.Response, maxBytes int64) ([]byte, bool, error) 
 
 // decodeBody decompresses bodyBytes when needed. The second return value is
 // false when the payload cannot be decoded or exceeds the decompression limit;
-// callers should then pass the original bytes through unchanged.
+// callers should then pass the original bytes through unchanged. Unknown
+// encodings are never treated as identity: replacing inside compressed bytes
+// would silently skip or corrupt the payload.
 func decodeBody(encoding string, bodyBytes []byte) ([]byte, bool) {
 	switch strings.ToLower(strings.TrimSpace(encoding)) {
+	case "":
+		return bodyBytes, true
 	case "gzip":
 		reader, err := gzip.NewReader(bytes.NewReader(bodyBytes))
 		if err != nil {
@@ -144,7 +148,7 @@ func decodeBody(encoding string, bodyBytes []byte) ([]byte, bool) {
 		}
 		return dataDecompressed, true
 	default:
-		return bodyBytes, true
+		return nil, false
 	}
 }
 
@@ -179,6 +183,11 @@ func rewriteBody(resp *http.Response, bodyReplaces []config.Replace, extraConten
 		return nil
 	}
 	if resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusNotModified {
+		return nil
+	}
+	// Ranged responses must pass through byte-identical: rewriting the body
+	// without fixing Content-Range would corrupt resumed transfers.
+	if resp.StatusCode == http.StatusPartialContent || resp.Header.Get("Content-Range") != "" {
 		return nil
 	}
 	if resp.Request != nil && resp.Request.Method == http.MethodHead {
@@ -248,6 +257,15 @@ func upstreamPath(source config.Source, requestPath string) string {
 	return source.Prefix + strings.TrimPrefix(requestPath, source.Prefix)
 }
 
+func hasBodyReplaces(replaces []config.Replace) bool {
+	for _, replace := range replaces {
+		if replace.Type != "header" {
+			return true
+		}
+	}
+	return false
+}
+
 func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source) {
 	targetUrl, err := url.Parse(source.Mirror)
 	if err != nil || targetUrl.Host == "" {
@@ -265,6 +283,14 @@ func HandlerReverse(w http.ResponseWriter, r *http.Request, source config.Source
 		if rewritten := upstreamPath(source, req.URL.Path); rewritten != req.URL.Path {
 			req.URL.Path = rewritten
 			req.URL.RawPath = ""
+		}
+		if hasBodyReplaces(source.Replaces) {
+			// Sources needing body rewrites must get a decodable encoding from
+			// upstream. Dropping the client's Accept-Encoding lets the Go
+			// transport negotiate gzip and decompress it transparently, so
+			// Brotli and other unsupported encodings can neither bypass nor
+			// corrupt the rewrite.
+			req.Header.Del("Accept-Encoding")
 		}
 		req.Host = targetUrl.Host
 	}

@@ -549,3 +549,143 @@ func TestHandlerReverseStripPathDropsStaleRawPath(t *testing.T) {
 		t.Fatalf("status %d", rec.Code)
 	}
 }
+
+func TestHandlerReverseSkipsPartialContentRewrite(t *testing.T) {
+	const payload = "prefix https://static.crates.io/crates suffix"
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Range", "bytes 42-86/100")
+		w.WriteHeader(http.StatusPartialContent)
+		fmt.Fprint(w, payload)
+	}))
+	defer upstream.Close()
+
+	source := config.Source{
+		UA:     "pip",
+		Path:   "/whl",
+		Mirror: upstream.URL,
+		Replaces: []config.Replace{
+			{Src: "https://static.crates.io/crates", Dst: "http://mirror.example/crates"},
+		},
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "http://mirror.example/whl/cpu/torch/", nil)
+	req.Header.Set("Range", "bytes=42-86")
+	rec := httptest.NewRecorder()
+	HandlerReverse(rec, req, source)
+
+	if rec.Code != http.StatusPartialContent {
+		t.Fatalf("status %d", rec.Code)
+	}
+	if rec.Body.String() != payload {
+		t.Fatalf("206 body must pass through unmodified, got %q", rec.Body.String())
+	}
+	if got := rec.Header().Get("Content-Range"); got != "bytes 42-86/100" {
+		t.Fatalf("Content-Range must pass through, got %q", got)
+	}
+	if got := rec.Header().Get("Content-Length"); got != strconv.Itoa(len(payload)) {
+		t.Fatalf("Content-Length must match original bytes, got %q want %d", got, len(payload))
+	}
+	if strings.Contains(rec.Body.String(), "mirror.example") {
+		t.Fatal("206 body must not be rewritten")
+	}
+}
+
+func TestHandlerReverseSkipsContentRangeHeaderRewrite(t *testing.T) {
+	// A 200 carrying Content-Range (some CDNs do this) must also pass through.
+	const payload = "https://static.crates.io/crates"
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Range", "bytes 0-42/100")
+		fmt.Fprint(w, payload)
+	}))
+	defer upstream.Close()
+
+	source := config.Source{
+		UA:     "pip",
+		Path:   "/whl",
+		Mirror: upstream.URL,
+		Replaces: []config.Replace{
+			{Src: "https://static.crates.io/crates", Dst: "http://mirror.example/crates"},
+		},
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "http://mirror.example/whl/x", nil)
+	rec := httptest.NewRecorder()
+	HandlerReverse(rec, req, source)
+
+	if rec.Body.String() != payload {
+		t.Fatalf("body with Content-Range must pass through unmodified, got %q", rec.Body.String())
+	}
+	if got := rec.Header().Get("Content-Range"); got != "bytes 0-42/100" {
+		t.Fatalf("Content-Range must pass through, got %q", got)
+	}
+}
+
+func TestHandlerReverseNormalizesAcceptEncoding(t *testing.T) {
+	upstreamSeen := make(chan string, 1)
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		upstreamSeen <- r.Header.Get("Accept-Encoding")
+		w.Header().Set("Content-Type", "application/x-sh")
+		fmt.Fprint(w, `clone https://github.com/openclaw/openclaw.git now`)
+	}))
+	defer upstream.Close()
+
+	source := config.Source{
+		Path:      "/openclaw.ai",
+		StripPath: true,
+		Mirror:    upstream.URL,
+		Replaces: []config.Replace{
+			{Src: "https://github.com", Dst: "<TLS_SCHEME><HOST>/github.com"},
+		},
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "http://mirror.example/openclaw.ai/install.sh", nil)
+	req.Header.Set("Accept-Encoding", "br, gzip, deflate")
+	rec := httptest.NewRecorder()
+	HandlerReverse(rec, req, source)
+
+	if got := <-upstreamSeen; got == "br" || strings.Contains(got, "br") {
+		t.Fatalf("upstream must not receive br Accept-Encoding, got %q", got)
+	}
+	if !strings.Contains(rec.Body.String(), "clone http://mirror.example/github.com/openclaw/openclaw.git now") {
+		t.Fatalf("body not rewritten with br client request: %s", rec.Body.String())
+	}
+}
+
+func TestRewriteBodyUnknownEncodingPassthrough(t *testing.T) {
+	// Payload labeled with an encoding we cannot decode must never be
+	// string-replaced, even when the bytes literally contain the match.
+	original := []byte(`{"dl":"https://static.crates.io/crates"}`)
+	resp := &http.Response{
+		StatusCode: http.StatusOK,
+		Header: http.Header{
+			"Content-Type":     []string{"application/json"},
+			"Content-Encoding": []string{"br"},
+		},
+		Body:          io.NopCloser(bytes.NewReader(original)),
+		ContentLength: int64(len(original)),
+	}
+
+	replaces := []config.Replace{{Src: "https://static.crates.io/crates", Dst: "http://mirror.example/crates"}}
+	if err := rewriteBody(resp, replaces, nil); err != nil {
+		t.Fatalf("rewriteBody must pass through, got error: %v", err)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("read body failed: %v", err)
+	}
+	if !bytes.Equal(data, original) {
+		t.Fatal("unknown Content-Encoding must pass original bytes through")
+	}
+	if got := resp.Header.Get("Content-Encoding"); got != "br" {
+		t.Fatalf("Content-Encoding must stay br, got %q", got)
+	}
+	if resp.ContentLength != int64(len(original)) {
+		t.Fatalf("ContentLength mismatch: %d", resp.ContentLength)
+	}
+	if strings.Contains(string(data), "mirror.example") {
+		t.Fatal("unknown-encoded body must not be string-replaced")
+	}
+}

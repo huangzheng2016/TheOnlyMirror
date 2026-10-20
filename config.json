@@ -303,6 +303,7 @@
     "https://copr.fedorainfracloud.org",
     "https://cdn.jsdelivr.net",
     "https://archive.debian.org",
-    "https://downloads.openwrt.org"
+    "https://downloads.openwrt.org",
+    "https://mainnet.infura.io"
   ]
 }
