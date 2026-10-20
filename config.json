@@ -79,6 +79,12 @@
           "header":"location",
           "src":"production.cloudfront.docker.com",
           "dst":"<HOST>/production.cloudfront.docker.com"
+        },
+        {
+          "type":"header",
+          "header":"link",
+          "src":"https://registry-1.docker.io",
+          "dst":"<TLS_SCHEME><HOST>"
         }
       ],
       "mirror":"https://registry-1.docker.io"
@@ -97,13 +103,15 @@
       "path":"/ubuntu",
       "mirror":"http://archive.ubuntu.com"
     },
+    "ubuntu-security":{
+      "path":"/ubuntu-security",
+      "prefix":"/ubuntu",
+      "strip_path":true,
+      "mirror":"http://security.ubuntu.com"
+    },
     "debian":{
       "path":"/debian",
       "mirror":"https://deb.debian.org"
-    },
-    "centos":{
-      "path":"/centos",
-      "mirror":"http://mirror.centos.org"
     },
     "epel-archive":{
       "path":"/pub/archive",
@@ -112,10 +120,6 @@
     "epel":{
       "path":"/pub/epel",
       "mirror":"https://dl.fedoraproject.org"
-    },
-    "jdoss":{
-      "path":"/results/jdoss",
-      "mirror":"https://download.copr.fedorainfracloud.org"
     },
     "kali":{
       "path":"/kali",
@@ -180,12 +184,104 @@
     "go":{
       "ua":"Go-http-client",
       "mirror":"https://proxy.golang.org"
+    },
+    "pytorch":{
+      "priority":2,
+      "ua":"pip",
+      "path":"/whl",
+      "replaces":[
+        {
+          "src":"https://download-r2.pytorch.org",
+          "dst":""
+        },
+        {
+          "src":"https://download.pytorch.org",
+          "dst":""
+        }
+      ],
+      "mirror":"https://download.pytorch.org"
+    },
+    "crates-index":{
+      "path":"/crates-index",
+      "strip_path":true,
+      "rewrite_content_types":[
+        "application/octet-stream"
+      ],
+      "replaces":[
+        {
+          "src":"https://static.crates.io/crates",
+          "dst":"<TLS_SCHEME><HOST>/crates"
+        }
+      ],
+      "mirror":"https://index.crates.io"
+    },
+    "crates-dl":{
+      "path":"/crates",
+      "mirror":"https://static.crates.io"
+    },
+    "rust-dist":{
+      "path":"/dist",
+      "rewrite_content_types":[
+        "binary/octet-stream"
+      ],
+      "replaces":[
+        {
+          "src":"https://static.rust-lang.org",
+          "dst":"<TLS_SCHEME><HOST>"
+        }
+      ],
+      "mirror":"https://static.rust-lang.org"
+    },
+    "rustup":{
+      "path":"/rustup",
+      "mirror":"https://static.rust-lang.org"
+    },
+    "openclaw":{
+      "path":"/openclaw.ai",
+      "strip_path":true,
+      "replaces":[
+        {
+          "src":"https://openclaw.ai",
+          "dst":"<TLS_SCHEME><HOST>/openclaw.ai"
+        },
+        {
+          "src":"https://raw.githubusercontent.com",
+          "dst":"<TLS_SCHEME><HOST>/raw.githubusercontent.com"
+        },
+        {
+          "src":"https://github.com",
+          "dst":"<TLS_SCHEME><HOST>/github.com"
+        },
+        {
+          "src":"https://registry.npmjs.org",
+          "dst":"<TLS_SCHEME><HOST>/registry.npmjs.org"
+        },
+        {
+          "src":"https://deb.nodesource.com",
+          "dst":"<TLS_SCHEME><HOST>/deb.nodesource.com"
+        },
+        {
+          "src":"https://rpm.nodesource.com",
+          "dst":"<TLS_SCHEME><HOST>/rpm.nodesource.com"
+        },
+        {
+          "src":"https://nodejs.org",
+          "dst":"<TLS_SCHEME><HOST>/nodejs.org"
+        }
+      ],
+      "mirror":"https://openclaw.ai"
     }
   },
   "proxy":[
     "https://production.cloudflare.docker.com",
     "https://production.cloudfront.docker.com",
     "https://ghcr.io",
+    "https://pkg-containers.githubusercontent.com",
+    "https://registry.npmjs.org",
+    "https://formulae.brew.sh",
+    "https://deb.nodesource.com",
+    "https://rpm.nodesource.com",
+    "https://nodejs.org",
     "https://registry.k8s.io",
     "https://k8s.gcr.io",
     "https://assets.githubusercontent.com",
@@ -207,8 +303,6 @@
     "https://copr.fedorainfracloud.org",
     "https://cdn.jsdelivr.net",
     "https://archive.debian.org",
-    "https://downloads.openwrt.org",
-    "https://mainnet.infura.io",
-    "https://mikanani.me"
+    "https://downloads.openwrt.org"
   ]
 }

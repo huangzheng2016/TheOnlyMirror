@@ -110,10 +110,8 @@ func matchSource(path string, ua string) (*config.Source, string, bool) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	host := config.NormalizeHost(r.Host)
 	ua := r.UserAgent()
 	path := r.URL.Path
-	log.Println(host, ua, path)
 
 	if strings.HasPrefix(path, "/api/") {
 		handleAPI(w, r)

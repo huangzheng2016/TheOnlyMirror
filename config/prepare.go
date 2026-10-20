@@ -49,6 +49,9 @@ func validateSourceConfig(key string, source Source) (Source, error) {
 	if strings.TrimSpace(source.UA) == "" && strings.TrimSpace(source.Path) == "" {
 		return source, fmt.Errorf("sources.%s requires at least one matcher: ua/path", key)
 	}
+	if source.StripPath && strings.TrimSpace(source.Path) == "" {
+		return source, fmt.Errorf("sources.%s.strip_path requires path to be set", key)
+	}
 
 	mirrorURL, err := validateUpstream(source.Mirror, "sources."+key+".mirror")
 	if err != nil {
@@ -88,8 +91,15 @@ func prepareConfig() error {
 		}
 		SourceSlices = append(SourceSlices, SourceSlice{Key: key, Sources: validated})
 	}
-	sort.Slice(SourceSlices, func(i, j int) bool {
-		return SourceSlices[i].Sources.Priority > SourceSlices[j].Sources.Priority
+	sort.SliceStable(SourceSlices, func(i, j int) bool {
+		a, b := SourceSlices[i], SourceSlices[j]
+		if a.Sources.Priority != b.Sources.Priority {
+			return a.Sources.Priority > b.Sources.Priority
+		}
+		if len(a.Sources.Path) != len(b.Sources.Path) {
+			return len(a.Sources.Path) > len(b.Sources.Path)
+		}
+		return a.Key < b.Key
 	})
 	for index, proxy := range config.Proxy {
 		targetURL, err := validateUpstream(proxy, fmt.Sprintf("proxy[%d]", index))
