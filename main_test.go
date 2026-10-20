@@ -9,14 +9,37 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httputil"
+	"net/url"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
 
+// lockedBuffer is a goroutine-safe log sink for tests whose handlers run on
+// other goroutines (e.g. real httptest servers).
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
+}
+
 func captureLog(t *testing.T, fn func()) string {
 	t.Helper()
-	var buf bytes.Buffer
+	var buf lockedBuffer
 	origOut, origFlags := log.Writer(), log.Flags()
 	log.SetOutput(&buf)
 	log.SetFlags(0)
@@ -206,5 +229,156 @@ func TestServeListenError(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("serve did not return promptly on listener failure")
+	}
+}
+
+type headerSpy struct {
+	*httptest.ResponseRecorder
+	codes []int
+}
+
+func (s *headerSpy) WriteHeader(code int) {
+	s.codes = append(s.codes, code)
+	s.ResponseRecorder.WriteHeader(code)
+}
+
+func TestStatusRecorderDuplicateFinalWriteHeader(t *testing.T) {
+	spy := &headerSpy{ResponseRecorder: httptest.NewRecorder()}
+	rec := &statusRecorder{ResponseWriter: spy}
+
+	rec.WriteHeader(http.StatusOK)
+	rec.WriteHeader(http.StatusInternalServerError)
+
+	if rec.status != http.StatusOK {
+		t.Errorf("duplicate final WriteHeader must not override the latched status, got %d", rec.status)
+	}
+	if !slices.Equal(spy.codes, []int{http.StatusOK}) {
+		t.Errorf("duplicate final WriteHeader must not reach the underlying writer, forwarded %v", spy.codes)
+	}
+}
+
+func TestStatusRecorderInformationalThenFinal(t *testing.T) {
+	spy := &headerSpy{ResponseRecorder: httptest.NewRecorder()}
+	rec := &statusRecorder{ResponseWriter: spy}
+
+	rec.WriteHeader(http.StatusContinue)
+	rec.WriteHeader(http.StatusEarlyHints)
+	if rec.status != 0 {
+		t.Fatalf("1xx responses must not latch a final status, got %d", rec.status)
+	}
+
+	rec.WriteHeader(http.StatusCreated)
+	if rec.status != http.StatusCreated {
+		t.Errorf("final status after 1xx = %d, want 201", rec.status)
+	}
+	if !slices.Equal(spy.codes, []int{http.StatusContinue, http.StatusEarlyHints, http.StatusCreated}) {
+		t.Errorf("forwarded codes = %v, want [100 103 201]", spy.codes)
+	}
+}
+
+func TestStatusRecorderSwitchingProtocols(t *testing.T) {
+	spy := &headerSpy{ResponseRecorder: httptest.NewRecorder()}
+	rec := &statusRecorder{ResponseWriter: spy}
+
+	rec.WriteHeader(http.StatusSwitchingProtocols)
+	if rec.status != http.StatusSwitchingProtocols {
+		t.Errorf("101 must latch as the final status, got %d", rec.status)
+	}
+
+	rec.WriteHeader(http.StatusOK)
+	if rec.status != http.StatusSwitchingProtocols {
+		t.Errorf("status after 101 = %d, want 101", rec.status)
+	}
+}
+
+func TestAccessLogPanicStillLogs(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("partial"))
+		panic(http.ErrAbortHandler)
+	})
+	req := httptest.NewRequest(http.MethodGet, "http://mirror.example.com/blob", nil)
+	rec := httptest.NewRecorder()
+
+	var panicked any
+	line := captureLog(t, func() {
+		defer func() { panicked = recover() }()
+		accessLog(handler).ServeHTTP(rec, req)
+	})
+
+	if panicked != http.ErrAbortHandler {
+		t.Errorf("panic must propagate unchanged, got %v", panicked)
+	}
+	if !strings.Contains(line, "/blob") || !strings.Contains(line, " 200 ") {
+		t.Errorf("stream aborted by panic is missing from the access log: %q", line)
+	}
+}
+
+func TestAccessLogEscapedPath(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	req := httptest.NewRequest(http.MethodGet, "http://mirror.example.com/%0AFORGED%20STATUS%20499", nil)
+	rec := httptest.NewRecorder()
+
+	line := captureLog(t, func() {
+		accessLog(handler).ServeHTTP(rec, req)
+	})
+
+	if strings.Count(line, "\n") != 1 || !strings.HasSuffix(line, "\n") {
+		t.Errorf("encoded newline must not forge extra log lines: %q", line)
+	}
+	if !strings.Contains(line, "/%0AFORGED%20STATUS%20499") {
+		t.Errorf("access log should carry the escaped path, got %q", line)
+	}
+}
+
+func TestAccessLogReverseProxyTruncatedStream(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "1024")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("short"))
+	}))
+	defer backend.Close()
+
+	backendURL, err := url.Parse(backend.URL)
+	if err != nil {
+		t.Fatalf("parse backend url: %v", err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(backendURL)
+
+	var logged lockedBuffer
+	origOut, origFlags := log.Writer(), log.Flags()
+	log.SetOutput(&logged)
+	log.SetFlags(0)
+	defer func() {
+		log.SetOutput(origOut)
+		log.SetFlags(origFlags)
+	}()
+
+	frontend := httptest.NewServer(accessLog(proxy))
+	defer frontend.Close()
+
+	resp, err := http.Get(frontend.URL + "/blob")
+	if err != nil {
+		// The panic aborted the handler before the buffered headers were
+		// flushed, so the client sees a bare connection error.
+		t.Logf("client saw aborted stream as transport error: %v", err)
+	} else {
+		if _, readErr := io.ReadAll(resp.Body); readErr == nil {
+			t.Error("truncated upstream body should fail the client body read")
+		}
+		_ = resp.Body.Close()
+	}
+
+	deadline := time.Now().Add(2 * time.Second)
+	for !strings.Contains(logged.String(), "/blob") {
+		if time.Now().After(deadline) {
+			t.Fatal("aborted reverse proxy stream left no access log entry")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if line := logged.String(); !strings.Contains(line, " 200 ") {
+		t.Errorf("aborted stream should log the committed status 200: %q", line)
 	}
 }
