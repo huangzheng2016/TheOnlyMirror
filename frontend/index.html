@@ -1,10 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TheOnlyMirror</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="TheOnlyMirror 一站式镜像聚合加速服务：按生态生成换源命令，提供可搜索的镜像目录、快捷 alias 与 proxy 域名。"
+    />
+    <title>TheOnlyMirror · 聚合镜像加速站</title>
+    <script>
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('mirror-theme-dark')
+          var dark =
+            saved === null
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              : saved === '1'
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light')
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>
