@@ -88,13 +88,14 @@ jobs:
           ASSET_NAME: the-only-mirror-${{ needs.prepare.outputs.target_tag }}-${{ matrix.goos }}-${{ matrix.goarch }}
         run: |
           mkdir -p dist
-          tar -czf "dist/${ASSET_NAME}.tar.gz" the-only-mirror
+          tar -czf "dist/${ASSET_NAME}.tar.gz" the-only-mirror config.json
+          (cd dist && sha256sum "${ASSET_NAME}.tar.gz" > "${ASSET_NAME}.tar.gz.sha256")
 
       - name: Upload archive artifact
         uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: dist/*.tar.gz
+          path: dist/
           if-no-files-found: error
 
   release:
@@ -114,10 +115,13 @@ jobs:
           pattern: release-*
           merge-multiple: true
 
+      - name: Generate checksum manifest
+        run: (cd dist && sha256sum *.tar.gz > SHA256SUMS)
+
       - name: Create or update GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release view "${{ needs.prepare.outputs.target_tag }}" --repo "${{ github.repository }}" >/dev/null 2>&1 || \
             gh release create "${{ needs.prepare.outputs.target_tag }}" --repo "${{ github.repository }}" --title "${{ needs.prepare.outputs.target_tag }}" --notes ""
-          gh release upload "${{ needs.prepare.outputs.target_tag }}" dist/*.tar.gz --repo "${{ github.repository }}" --clobber
+          gh release upload "${{ needs.prepare.outputs.target_tag }}" dist/*.tar.gz dist/*.sha256 dist/SHA256SUMS --repo "${{ github.repository }}" --clobber
