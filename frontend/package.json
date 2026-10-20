@@ -9,8 +9,7 @@
   "packageManager": "npm@12.2.0",
   "scripts": {
     "dev": "vite",
-    "postinstall": "node scripts/prepare-vue-tsc.mjs",
-    "build": "node scripts/prepare-vue-tsc.mjs && vue-tsc -b && vite build",
+    "build": "node scripts/typecheck.mjs -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

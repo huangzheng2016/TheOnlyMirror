@@ -30,7 +30,7 @@ const filtered = computed(() => {
 })
 
 const selected = computed(() => {
-  const hit = props.sources.find((s) => s.key === selectedKey.value)
+  const hit = filtered.value.find((s) => s.key === selectedKey.value)
   return hit ?? filtered.value[0] ?? null
 })
 
