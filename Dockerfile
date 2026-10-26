@@ -1,4 +1,4 @@
-FROM node:26-alpine as webbuild
+FROM node:26-alpine AS webbuild
 
 WORKDIR /app/frontend
 
@@ -7,7 +7,7 @@ RUN npm ci
 COPY frontend ./
 RUN npm run build
 
-FROM golang:1.26-alpine as build
+FROM golang:1.27-alpine AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY --from=webbuild /app/frontend/dist /app/frontend/dist
 
 RUN go build -v -trimpath -o the-only-mirror  ./
 
-FROM alpine:latest as prod
+FROM alpine:latest AS prod
 
 WORKDIR /app
 

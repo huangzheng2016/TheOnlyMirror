@@ -53,19 +53,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.prepare.outputs.target_tag }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 26
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
           cache: true
@@ -92,7 +92,7 @@ jobs:
           (cd dist && sha256sum "${ASSET_NAME}.tar.gz" > "${ASSET_NAME}.tar.gz.sha256")
 
       - name: Upload archive artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: release-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/
@@ -109,7 +109,7 @@ jobs:
 
     steps:
       - name: Download archives
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v8.0.2
         with:
           path: dist
           pattern: release-*
